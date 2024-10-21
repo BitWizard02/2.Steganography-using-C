@@ -1,50 +1,81 @@
 #include <stdio.h>
+#include <string.h>
 #include "encode.h"
+#include "common.h"
 #include "types.h"
+#include "decode.h"
 
-int main(int argc,char *argv[])
+int main(int argc , char *argv[])
 {
-    EncodeInfo encInfo;
-    uint img_size;
-
-    // // Fill with sample filenames
-    // encInfo.src_image_fname = "beautiful.bmp";
-    // encInfo.secret_fname = "secret.txt";
-    // encInfo.stego_image_fname = "stego_img.bmp";
-
-    // // Test open_files
-    // if (open_files(&encInfo) == e_failure)
-    // {
-    // 	printf("ERROR: %s function failed\n", "open_files" );
-    // 	return 1;
-    // }
-    // else
-    // {
-    // 	printf("SUCCESS: %s function completed\n", "open_files" );
-    // }
-
-    // // Test get_image_size_for_bmp
-    // img_size = get_image_size_for_bmp(encInfo.fptr_src_image);
-    // printf("INFO: Image size = %u\n", img_size);
-
-    //check the opertaion type
-        //call the check opertaion type function 
-        int res=check_operation_type(*argv);
-        if(res==0)
+    // Check the operation types
+    // call check_operationtype fucnction
+    if (argc >= 4 && argc <= 5)
+    {    
+        if(check_operation_type(argv , argc) == e_encode)
         {
-            if(argc>=4 && argc<=5)
+            //  Declaring the EncodeInfo structure 
+            EncodeInfo encodeinfo;
+            if (read_and_validate_encode_args(argv , &encodeinfo , argc) == e_success) 
             {
-                //start the encoding
-                read_and_validate_encode_args(argv, &encInfo);
+                printf("Validate the arguments \n");
+                if ( do_encoding( &encodeinfo ) == e_success )
+                {   
+                    printf("\nYour Secret data has been ENCODED Successfully!\n");
+                    return e_success;
+                }
+                else
+                {
+                    printf("Failed to Encode the data !\n");
+                }
             }
             else
             {
-                //printf error
-                printf("ERROR: Please enter the correct number of arguments\n");
+                printf("Invalid Arguments \n");
+                printf("ERROR - Encoding : ./a.out -e <file.bmp> <secret_file> <output.bmp>(optional) \n" );
+                printf("ERROR - Decoding : ./a.out -d <file.bmp> <output_file>(optional) \n");
+                return 1;
             }
         }
-        
-
-
+    }
+    if ((argc >= 3) && (argc <= 4))
+    {
+        if ( check_operation_type(argv , argc) == e_decode) 
+        {   
+                DecodeInfo decodeinfo;
+                if (read_and_validate_decode_args( argv , &decodeinfo , argc ) == e_success )
+                {
+                    printf("Validated the arguments\n");
+                    if ( do_decoding( &decodeinfo ) == e_success )
+                    {
+                        printf("\nYour Secret data has been DECODED Successfully!\n");
+                    }
+                    else
+                    {
+                        printf("Failed to Decode the data \n");
+                    }
+                }
+                else
+                {
+                    printf("Invalid Arguments \n");
+                    printf("ERROR - Encoding : ./a.out -e <file.bmp> <secret_file> <output.bmp>(optional) \n" );
+                    printf("ERROR - Decoding : ./a.out -d <file.bmp> <output_file>(optional) \n");
+                    return 1;
+                }
+        }
+        else
+        {
+            printf("Invalid Arguments\n");
+            printf("ERROR - Encoding : ./a.out -e <file.bmp> <secret_file> <output.bmp>(optional) \n" );
+            printf("ERROR - Decoding : ./a.out -d <file.bmp> <output_file>(optional) \n");
+            return 1;
+        }
+    }
+    else
+    {
+        printf("Invalid Arguments \n");
+        printf("ERROR - Encoding : ./a.out -e <file.bmp> <secret_file> <output.bmp>(optional) \n" );
+        printf("ERROR - Decoding : ./a.out -d <file.bmp> <output_file>(optional) \n");
+        return 1;
+    }
     return 0;
 }
